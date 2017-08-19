@@ -1,12 +1,8 @@
-const pg = require('pg');
-
-const pool = new pg.Pool({
-  database: 'events'
-});
+const pg = require('./pg');
 
 module.exports = {
   zip_by_city: async function(city, state) {
-    let { rows } = await pool.query(`
+    let { rows } = await pg.query(`
       select id
       from zip_codes
       where lower(city) = lower($1)
@@ -20,8 +16,8 @@ module.exports = {
   },
 
   coords_by_city: async function(city, state) {
-    let { rows } = await pool.query(`
-      select latitude, longitude
+    let { rows } = await pg.query(`
+      select id, latitude, longitude
       from zip_codes
       where lower(city) = lower($1)
         and lower(state) = lower($2)
@@ -31,7 +27,8 @@ module.exports = {
     if ( rows.length ) {
       return {
         latitude: rows[0].latitude,
-        longitude: rows[0].longitude
+        longitude: rows[0].longitude,
+        zip_id: rows[0].id
       };
     }
 

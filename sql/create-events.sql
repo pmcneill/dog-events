@@ -35,7 +35,14 @@ where t.name = 'Lure Coursing';
 
 create table events (
   id            serial primary key,
-  source        integer references sources(id),
+  source_id     integer references sources(id),
   starts_on     date,
-  zip_id        integer references zip_codes(id)
+  city          varchar(200),
+  state         varchar(2),
+  zip_id        integer references zip_codes(id),
+  club          varchar(200),
+  description   text,
+  judge_1       varchar(500),
+  judge_2       varchar(500),
+  premium_url   varchar(500)
 );

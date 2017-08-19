@@ -60,8 +60,7 @@ module.exports = {
         let club = util.node_text(cells[9]),
             city = util.node_text(cells[10]),
             state = util.node_text(cells[11]),
-            zip_id = await geo.zip_by_city(city, state),
-            { latitude, longitude } = await geo.coords_by_city(city, state),
+            { latitude, longitude, zip_id } = await geo.coords_by_city(city, state),
             premium = '';
 
         if ( cells[13].innerHTML != '' ) {
