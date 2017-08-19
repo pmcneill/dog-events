@@ -67,7 +67,7 @@ module.exports = {
           let link_nodes = cells[13].getElementsByTagName('a');
     
           if ( link_nodes.length ) {
-            premium = 'http://www.asfa.org/events/' + link_nodes[0].getAttribute('href');
+            premium = 'http://www.asfa.org/event/' + link_nodes[0].getAttribute('href');
           }
         }
     
