@@ -18,24 +18,24 @@ create table sources (
   id              serial primary key,
   name            varchar(100),
   title           varchar(100),
-  type_id         integer references types(id),
   url             varchar(500),
   in_service      timestamptz default now(),
-  out_of_service  timestamptz
+  out_of_service  timestamptz,
+  next_update_at  timestamptz default now()
 );
 
 comment on column sources.name is 'Name of the JS class that reads this source';
 
 insert into sources (
-  name, title, type_id, url
-)
-select 'lc_asfa', 'ASFA', t.id, 'http://asfa.org'
-from types t
-where t.name = 'Lure Coursing';
+  name, title, url
+) values (
+  'lc_asfa', 'ASFA', 'http://asfa.org'
+);
 
 create table events (
   id            serial primary key,
   source_id     integer references sources(id),
+  type_id       integer references types(id),
   starts_on     date,
   city          varchar(200),
   state         varchar(2),

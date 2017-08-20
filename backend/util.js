@@ -1,3 +1,5 @@
+const pg = require('./pg');
+
 module.exports = {
   reformat_date: function(date_string) {
     let obj = new Date(date_string);
@@ -17,11 +19,22 @@ module.exports = {
     return `${y}-${m}-${d}`;
   },
 
-  node_text(node) {
+  node_text: function(node) {
     if ( ! node || ! node.innerHTML ) return "";
     return node.innerHTML
       .replace(/<.*?>/g, '')
       .replace(/&amp;/gi, '&')
       .replace(/[ ]+/g, ' ')
+  },
+
+  type_id_for: async function(type) {
+    let { rows } = await pg.query(
+      `
+        select id from types where lower(name) = lower($1)
+      `,
+      [ type ]
+    );
+
+    return rows[0].id;
   }
 };

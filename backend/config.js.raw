@@ -1,4 +1,3 @@
 module.exports = {
-  db_name: 'events',
-  sources: ['lc_asfa']
+  db_name: 'events'
 };

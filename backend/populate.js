@@ -2,11 +2,19 @@ const pg = require('./pg'),
       cfg = require('./config');
 
 async function load_data() {
-  for ( let source of cfg.sources ) {
-    let events = await require(`./sources/${source}`).fetch_year(2017);
+  let { rows: sources } = await pg.query(`
+    select id, name
+    from sources
+    where out_of_service is null
+      and in_service < now()
+      and next_update_at < now()
+    order by next_update_at
+  `);
 
-    let { rows } = await pg.query('select id from sources where name = $1', [source]),
-        source_id = rows[0].id;
+  for ( let source of sources ) {
+    console.log(`Loading ${source.name}...`);
+
+    let events = await require(`./sources/${source.name}`)();
 
     const pgc = await pg.connect();
 
@@ -19,7 +27,7 @@ async function load_data() {
         from events
         where source_id = \$1
       `,
-      [source_id]
+      [source.id]
     );
 
     existing = existing || [];
@@ -29,7 +37,8 @@ async function load_data() {
     for ( let evt of events ) {
       let exists = existing.find((e) => {
         return e.club.toLowerCase() === evt.club.toLowerCase() &&
-               e.zip_id === evt.zip_id &&
+               // == to allow for nulls and undefineds to mingle
+               e.zip_id == evt.zip_id &&
                e.starts_on === evt.date;
       });
 
@@ -42,19 +51,20 @@ async function load_data() {
 
       await pgc.query(`
         insert into events (
-          source_id, starts_on, city, state, zip_id, club, description, premium_url
+          source_id, type_id, starts_on, city, state, zip_id, club, description, premium_url
         ) values (
-          $1, $2, $3, $4, $5, $6, $7, $8
+          $1, $2, $3, $4, $5, $6, $7, $8, $9
         )
       `, [
-        source_id,
+        source.id,
+        evt.type_id,
         evt.date,
         evt.city,
         evt.state,
         evt.zip_id,
         evt.club,
-        evt.type,
-        evt.premium || null
+        evt.description,
+        evt.premium_url || null
       ]);
     }
 
@@ -64,6 +74,15 @@ async function load_data() {
       console.log("Deleting existing " + evt.id);
       await pgc.query('delete from events where id = $1', [evt.id]);
     }
+
+    await pgc.query(
+      `
+        update sources
+           set next_update_at = now() + '1 day'::interval
+        where id = $1
+      `,
+      [ source.id ]
+    );
 
     await pgc.query('commit');
   }
