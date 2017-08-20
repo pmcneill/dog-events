@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <title>Search ASFA Events</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+
+  <body>
+    <form>
+      Search for events within
+      <input id="range" type="text" size="5" value="100" />
+      miles of
+      <input id="zip" type="text" size="5" placeholder="Zip" />
+      <input id="search" type="submit" value="Search"/>
+    </form>
+
+    <div id="output">
+    </div>
+
+    <script language="javascript">
+$("#search").click(function(e) {
+  var zip = parseInt($("#zip").val(), 10);
+  var range = parseInt($("#range").val(), 10);
+
+  e.preventDefault();
+
+  if ( ! zip || ! range ) {
+    return;
+  }
+
+  $.get("/events/search/" + zip + "/" + range, function(events) {
+    let html = '';
+
+    for ( let e of events ) {
+      html += '<p>' + e.club + ' on ' + e.starts_on + ' at ' + e.city + ', ' + e.state + ' (' + Math.ceil(e.distance) + ' miles away)';
+
+      if ( e.premium_url ) {
+        html += ' - <a href="' + e.premium_url + '" target="_blank">Premium</a>';
+      }
+
+      html += '</p>';
+    }
+
+    $("#output").html(html);
+  });
+});
+    </script>
+  </body>
+</html>
