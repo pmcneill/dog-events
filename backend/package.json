@@ -12,6 +12,7 @@
     "geolib": "^2.0.23",
     "jsdom": "^11.1.0",
     "koa": "^2.3.0",
+    "koa2-cors": "^2.0.5",
     "pg": "^7.1.2",
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4"
