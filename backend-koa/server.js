@@ -1,10 +1,10 @@
-const pg = require('./pg'),
+const pg = require('../pg'),
       cors = require('koa2-cors'),
       koa = require('koa');
 
 const app = new koa();
 
-app.use(cors());
+app.use(cors({ origin: '*' }));
 
 app.use(async (ctx) => {
   let [url] = ctx.request.url.split('?'),

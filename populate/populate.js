@@ -1,5 +1,5 @@
-const pg = require('./pg'),
-      cfg = require('./config');
+const pg = require('../pg'),
+      cfg = require('../config');
 
 async function load_data() {
   let { rows: sources } = await pg.query(`

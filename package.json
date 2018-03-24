@@ -1,0 +1,30 @@
+{
+  "name": "dog-events",
+  "version": "1.0.0",
+  "description": "",
+  "main": "config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pmcneill/dog-events.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pmcneill/dog-events/issues"
+  },
+  "homepage": "https://github.com/pmcneill/dog-events#readme",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "geolib": "^2.0.24",
+    "jsdom": "^11.6.2",
+    "koa": "^2.5.0",
+    "koa2-cors": "^2.0.5",
+    "pg": "^7.4.1",
+    "request": "^2.85.0",
+    "request-promise-native": "^1.0.5"
+  }
+}
