@@ -1,11 +1,23 @@
-const pg = require('../pg'),
-      cors = require('koa2-cors'),
-      koa = require('koa');
+const // A module to talk to my postgresql database
+      pg = require('../pg'),
+      // The web server framework
+      koa = require('koa'),
+      // A module for Koa to allow for "cross origin resource sharing".
+      // Using this makes it possible to run everything locally, without
+      // using a server and hostname
+      cors = require('koa2-cors');
 
+// First, create the server.  Koa wraps all of the web server logic for us,
+// so we only have to create handlers for certain URLs.  Every request that
+// arrives sets off a series of events, which are set up with "app.use".
 const app = new koa();
 
+// First thing, make sure we allow requests from everywhere
 app.use(cors({ origin: '*' }));
 
+// Here's the meat of our server.  We're not telling Koa to
+// limit us to a particular URL path, so this function will
+// be called for every request made to the server.
 app.use(async (ctx) => {
   let [url] = ctx.request.url.split('?'),
       [start_zip, range] = url.substr(1).split('/').slice(-2);

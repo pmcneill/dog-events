@@ -44,5 +44,6 @@ create table events (
   description   text,
   judge_1       varchar(500),
   judge_2       varchar(500),
-  premium_url   varchar(500)
+  premium_url   varchar(500),
+  address       varchar(200)
 );
