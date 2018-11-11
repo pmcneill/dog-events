@@ -27,6 +27,10 @@ $("#search").click(function(e) {
     return;
   }
 
+  // This is how we talk to the server we created in the backend directory.  Start
+  // the backend with "node server.js", then load this page in a browser.  $.get
+  // to localhost:4001 will connect to the local computer on port 4001, the same one
+  // set up in the backend.
   $.get("http://localhost:4001/events/search/" + zip + "/" + range, function(events) {
     let html = '';
 
