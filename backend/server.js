@@ -29,24 +29,39 @@ app.use(respond({ autoMessage: false }));
 // "events" and "search" words are part of the pattern, so they must match
 // in the URL for this handler to be used.
 router.get('search', '/events/search/:start_zip/:range', async (ctx) => {
-
   // In the function, we've matched a URL pattern so we have
-  // ctx.params.start_zip and ctx.params.range to work with.  Pass
-  // those to a database query, then return the result.
-  let { rows: events } = await pg.query(`
-    with events_with_range as (
-      select e.*, geodistance(z1.latitude, z1.longitude, z2.latitude, z2.longitude) as distance
-      from events e join zip_codes z1 on (z1.id = e.zip_id),
-           zip_codes z2
-      where z2.id = (select id from zip_codes where zip = $1 limit 1)
-        and e.starts_on > now()
-    )
-    select r.id, r.distance, r.club, r.city, r.state, r.premium_url,
-           to_char(r.starts_on, 'YYYY-MM-DD') as starts_on
-    from events_with_range r
-    where r.distance < $2
-    order by r.starts_on, r.distance
-  `, [ctx.params.start_zip, ctx.params.range]);
+  // ctx.params.start_zip and ctx.params.range to work with. 
+
+  // First, look up the ZIP code they passed in, so we'll have the ID
+  // handy for the next query.
+  let query_result = await pg.query(`
+    select id
+    from zip_codes
+    where zip = $1
+    limit 1
+  `, [ ctx.params.start_zip ]);
+
+  // pg.query gives us back a bunch of data.  We only need the "rows"
+  // attribute, which has the actual data, and the "id" attribute of that.
+  let zip_id = query_result.rows[0].id;
+  console.log(`Zip ${ctx.params.start_zip} ID is ${zip_id}`);
+
+  // Now, a query to find the events within range.  We're using a custom
+  // "zip_distance" function that returns the distance between two zip
+  // code IDs.  One of the IDs comes from the query above, the other is a
+  // part of the events table.
+  query_result = await pg.query(`
+    select e.id,
+           zip_distance($1, e.zip_id) as distance,
+           e.club, e.city, e.state, e.premium_url,
+           to_char(e.starts_on, 'YYYY-MM-DD') as starts_on
+    from events e
+    where zip_distance($1, e.zip_id) < $2
+      and e.starts_on > now()
+    order by starts_on, distance
+  `, [ zip_id, ctx.params.range ]);
+
+  let events = query_result.rows;
 
   console.log("Searching for events within " + ctx.params.range + " of " + ctx.params.start_zip + ", found " + events.length);
 
